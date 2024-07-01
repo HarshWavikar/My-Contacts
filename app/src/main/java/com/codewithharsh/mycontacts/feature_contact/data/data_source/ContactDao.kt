@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import com.codewithharsh.mycontacts.feature_contact.domain.model.Contact
 import kotlinx.coroutines.flow.Flow
 
