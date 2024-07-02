@@ -12,3 +12,6 @@ data class Contact(
     val email: String,
     val phone: String,
 )
+
+
+class InvalidContactException(message: String) : Exception(message)
