@@ -9,6 +9,7 @@ import com.codewithharsh.mycontacts.feature_contact.data.repository.ContactRepos
 import com.codewithharsh.mycontacts.feature_contact.domain.repository.ContactRepository
 import com.codewithharsh.mycontacts.feature_contact.domain.use_case.ContactUseCase
 import com.codewithharsh.mycontacts.feature_contact.domain.use_case.DeleteContactUseCase
+import com.codewithharsh.mycontacts.feature_contact.domain.use_case.GetContactUseCase
 import com.codewithharsh.mycontacts.feature_contact.domain.use_case.GetContactsUseCase
 import com.codewithharsh.mycontacts.feature_contact.domain.use_case.InsertContactUseCase
 import dagger.Module
@@ -23,7 +24,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideRoomDatabase(application: Application): RoomDatabase {
+    fun provideRoomDatabase(application: Application): ContactDatabase {
         return Room.databaseBuilder(
             application,
             ContactDatabase::class.java,
@@ -42,6 +43,7 @@ class AppModule {
     fun providesContactUseCase(contactRepository: ContactRepository): ContactUseCase {
         return ContactUseCase(
             getContactsUseCase = GetContactsUseCase(contactRepository),
+            getContactUseCase = GetContactUseCase(contactRepository),
             insertContactUseCase = InsertContactUseCase(contactRepository),
             deleteContactUseCase = DeleteContactUseCase(contactRepository)
         )
