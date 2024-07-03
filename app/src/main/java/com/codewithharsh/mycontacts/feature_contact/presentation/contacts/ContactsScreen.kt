@@ -1,7 +1,11 @@
 package com.codewithharsh.mycontacts.feature_contact.presentation.contacts
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -49,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.codewithharsh.mycontacts.feature_contact.presentation.contacts.components.ContactItem
@@ -62,10 +67,21 @@ fun ContactsScreen(
     navController: NavController,
     viewModel: ContactsViewModel = hiltViewModel()
 ) {
-    val content = LocalContext.current
+    val context = LocalContext.current
     val state = viewModel.state.value
     val snackBarHost = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()  // this will be needed to show the snackbar
+
+
+    val callPermissionResultLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            viewModel.onPermissionResult(
+                permission = Manifest.permission.CALL_PHONE,
+                isGranted = isGranted
+            )
+        }
+    )
 
     Scaffold(
         floatingActionButton = {
@@ -186,22 +202,20 @@ fun ContactsScreen(
                                         navController.navigate(Screens.AddEditContactScreen.route + "?contactId=${contact.id}")
                                     },
                                 onCallClick = {
-//                                    val intent = Intent(Intent.ACTION_CALL)
-//                                    intent.data = Uri.parse("tel:${contact.phone}")
-//                                    content.startActivity(intent)
-                                },
-//                                onDeleteItemClick = {
-//                                    viewModel.onEvent(ContactEvents.DeleteContact(contact))
-//                                    scope.launch {
-//                                        val result = snackBarHost.showSnackbar(
-//                                            message = "Contact Deleted",
-//                                            actionLabel = "Undo"
-//                                        )
-//                                        if (result == SnackbarResult.ActionPerformed) {
-//                                            viewModel.onEvent(ContactEvents.RestoreContact)
-//                                        }
-//                                    }
-//                                }
+                                    if (ContextCompat.checkSelfPermission(
+                                            context,
+                                            Manifest.permission.CALL_PHONE
+                                        ) == PackageManager.PERMISSION_GRANTED
+                                    ) {
+                                        val intent = Intent(Intent.ACTION_CALL)
+                                        intent.data = Uri.parse("tel:${contact.phone}")
+                                        context.startActivity(intent)
+                                    } else {
+                                        callPermissionResultLauncher.launch(
+                                            Manifest.permission.CALL_PHONE
+                                        )
+                                    }
+                                }
                             )
                         }
                     )
@@ -210,4 +224,6 @@ fun ContactsScreen(
         }
     }
 }
+
+
 

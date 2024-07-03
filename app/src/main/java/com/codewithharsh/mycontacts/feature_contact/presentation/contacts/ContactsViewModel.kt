@@ -1,6 +1,7 @@
 package com.codewithharsh.mycontacts.feature_contact.presentation.contacts
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,6 +30,16 @@ class ContactsViewModel @Inject constructor(
 
     private var getContactsJob: Job? = null
 
+    val visiblePermissionDialogQueue = mutableStateListOf<String>()
+
+    fun onPermissionResult(
+        permission: String,
+        isGranted: Boolean
+    ) {
+        if (!isGranted) {
+            visiblePermissionDialogQueue.add(0, permission)
+        }
+    }
     init {
         getContacts(ContactOrder.OrderByFirstName(OrderType.Ascending))
     }
@@ -79,3 +90,5 @@ class ContactsViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 }
+
+
