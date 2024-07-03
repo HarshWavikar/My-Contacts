@@ -103,16 +103,3 @@ fun ContactItem(
 
     }
 }
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ContactItemPreview(){
-   ContactItem(contact = Contact(
-       firstName = "Harsh",
-       lastName ="Wavikar",
-       email = "harsh@gmail.com",
-       phone = "9930255206"
-   ),
-       onCallClick = { /*TODO*/ })
-
-}
