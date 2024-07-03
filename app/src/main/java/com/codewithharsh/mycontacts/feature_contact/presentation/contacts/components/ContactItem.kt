@@ -29,9 +29,12 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.codewithharsh.mycontacts.feature_contact.domain.model.Contact
+import com.codewithharsh.mycontacts.feature_contact.presentation.contacts.ContactsScreen
 
 @Composable
 fun ContactItem(
@@ -48,6 +51,7 @@ fun ContactItem(
         elevation = CardDefaults.elevatedCardElevation(8.dp)
     ) {
         Row(
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -65,37 +69,50 @@ fun ContactItem(
                     fontWeight = FontWeight.Bold
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.width(5.dp))
+            Spacer(modifier = Modifier.width(5.dp))
 
-        Column(
-            modifier = Modifier.fillMaxWidth(0.8f),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = contact.firstName + " " + contact.lastName,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                text = contact.phone,
-                color = MaterialTheme.colorScheme.primary,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+            Column(
+                modifier = Modifier.fillMaxWidth(0.8f),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = contact.firstName + " " + contact.lastName,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = contact.phone,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-        IconButton(
-            onClick = { onCallClick(contact.phone) },
-            modifier = Modifier.padding(10.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Call,
-                contentDescription = "Call",
-                tint = MaterialTheme.colorScheme.onBackground
-            )
+            IconButton(
+                onClick = { onCallClick(contact.phone) },
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Call,
+                    contentDescription = "Call",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
 
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun ContactItemPreview(){
+   ContactItem(contact = Contact(
+       firstName = "Harsh",
+       lastName ="Wavikar",
+       email = "harsh@gmail.com",
+       phone = "9930255206"
+   ),
+       onCallClick = { /*TODO*/ })
+
 }

@@ -186,9 +186,9 @@ fun ContactsScreen(
                                         navController.navigate(Screens.AddEditContactScreen.route + "?contactId=${contact.id}")
                                     },
                                 onCallClick = {
-                                    val intent = Intent(Intent.ACTION_CALL)
-                                    intent.data = Uri.parse("tel:${contact.phone}")
-                                    content.startActivity(intent)
+//                                    val intent = Intent(Intent.ACTION_CALL)
+//                                    intent.data = Uri.parse("tel:${contact.phone}")
+//                                    content.startActivity(intent)
                                 },
 //                                onDeleteItemClick = {
 //                                    viewModel.onEvent(ContactEvents.DeleteContact(contact))
