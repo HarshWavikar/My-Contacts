@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
 
                        Only composable that are defined within this SharedTransitionScope will be
                        able to access certain modifiers used to mark our shared elements. */
+
                     SharedTransitionLayout {
                         NavHost(
                             navController = navController,

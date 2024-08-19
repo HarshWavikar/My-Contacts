@@ -1,10 +1,10 @@
 package com.codewithharsh.mycontacts.feature_contact.presentation.contacts.components
 
 import android.graphics.BitmapFactory
-import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,16 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
 import com.codewithharsh.mycontacts.feature_contact.domain.model.Contact
-import com.codewithharsh.mycontacts.feature_contact.presentation.contacts.ContactsScreen
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -67,7 +63,7 @@ fun SharedTransitionScope.ContactItem(
                         state = rememberSharedContentState(key = "image/${contact.id}"),
                         animatedVisibilityScope = animatedVisibilityScope,
                         boundsTransform = { _, _ ->
-                            tween(durationMillis = 1000)
+                            tween(durationMillis = 200, easing = FastOutSlowInEasing)
                         }
                     )
                     .size(70.dp)
@@ -108,14 +104,14 @@ fun SharedTransitionScope.ContactItem(
                             state = rememberSharedContentState(key = "text/${contact.id}/${contact.firstName}"),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = {_,_ ->
-                                tween(durationMillis = 300)
+                                tween(durationMillis = 800)
                             }
                         )
                         .sharedElement(
                             state = rememberSharedContentState(key = "text/${contact.id}/${contact.lastName}"),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = {_,_ ->
-                                tween(durationMillis = 300)
+                                tween(durationMillis = 800)
                             }
                         )
                     ,
@@ -129,7 +125,7 @@ fun SharedTransitionScope.ContactItem(
                             state = rememberSharedContentState(key = "text/${contact.email}"),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = {_,_ ->
-                                tween(durationMillis = 500)
+                                tween(durationMillis = 1000)
                             }
                         )
                         .offset (y = (-8).dp),
@@ -144,7 +140,7 @@ fun SharedTransitionScope.ContactItem(
                             state = rememberSharedContentState(key = "text/${contact.phone}"),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = {_,_ ->
-                                tween(durationMillis = 700)
+                                tween(durationMillis = 1200)
                             }
                         ).offset (y = (-5).dp),
                     text = contact.phone,

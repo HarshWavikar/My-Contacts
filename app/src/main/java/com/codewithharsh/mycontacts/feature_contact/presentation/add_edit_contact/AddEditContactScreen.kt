@@ -1,6 +1,8 @@
 package com.codewithharsh.mycontacts.feature_contact.presentation.add_edit_contact
 
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -50,6 +52,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.codewithharsh.mycontacts.R
 import kotlinx.coroutines.flow.collectLatest
+import java.io.ByteArrayOutputStream
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -83,12 +86,20 @@ fun SharedTransitionScope.AddEditContactScreen(
     }
     val context = LocalContext.current
     val pickImageLauncher = rememberLauncherForActivityResult(
-    contract = ActivityResultContracts.GetContent()
-    ){uri: Uri? ->
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
         uri?.let {
             val inputStream = context.contentResolver.openInputStream(it)
             val byteArray = inputStream?.readBytes()
-            viewModel.onEvent(AddEditContactEvent.ImageChanged(byteArray))
+//            viewModel.onEvent(AddEditContactEvent.ImageChanged(byteArray))
+
+            // Compress the image before storing
+            val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray?.size ?: 0)
+            val outputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream) // Compress to 50% quality
+            val compressedByteArray = outputStream.toByteArray()
+
+            viewModel.onEvent(AddEditContactEvent.ImageChanged(compressedByteArray))
         }
     }
 
@@ -109,163 +120,297 @@ fun SharedTransitionScope.AddEditContactScreen(
         },
         snackbarHost = { SnackbarHost(snackBarHost) }
     ) {
-
-        Column(
-            modifier = Modifier
-                .padding(it)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(3.dp)
-        ) {
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Box(
+        if (viewModel.currentContactId != null) {
+            Column(
                 modifier = Modifier
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "image/${viewModel.currentContactId}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = {_,_ ->
-                            tween(durationMillis = 1000)
-                        }
-                    )
-                    .padding(10.dp)
-                    .height(180.dp)
-                    .width(150.dp)
-                    .clip(RoundedCornerShape(15.dp)),
-                contentAlignment = Alignment.TopCenter
-            ){
-                if (imageState?.isNotEmpty() == true){
-                    Image(
-                        painter = rememberAsyncImagePainter(imageState), // Replace with your image resource
-                        contentDescription = "Default Image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(150.dp)
-                            .clip(RoundedCornerShape(15.dp))
-                            .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(15.dp))
-                            .shadow(elevation = 8.dp, shape = RoundedCornerShape(15.dp))
-                    )
-                }else{
+                    .padding(it)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
 
-                    Image(
-                        modifier = Modifier
-                            .height(150.dp)
-                            .width(150.dp)
-                            .clip(RoundedCornerShape(15.dp))
-                        ,
-                        painter = painterResource(id = R.drawable.def),
-                        contentDescription = "Contact Image",
-                        contentScale = ContentScale.Crop)
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Box(
+                    modifier = Modifier
+                        .sharedElement(
+                            state = rememberSharedContentState(key = "image/${viewModel.currentContactId}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                tween(durationMillis = 1000)
+                            }
+                        )
+                        .padding(10.dp)
+                        .height(180.dp)
+                        .width(150.dp)
+                        .clip(RoundedCornerShape(15.dp)),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    if (imageState?.isNotEmpty() == true) {
+                        Image(
+                            painter = rememberAsyncImagePainter(imageState),
+                            contentDescription = "Default Image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(150.dp)
+                                .clip(RoundedCornerShape(15.dp))
+                                .border(
+                                    2.dp,
+                                    MaterialTheme.colorScheme.primary,
+                                    RoundedCornerShape(15.dp)
+                                )
+                                .shadow(elevation = 8.dp, shape = RoundedCornerShape(15.dp))
+                        )
+                    } else {
+
+                        Image(
+                            modifier = Modifier
+                                .height(150.dp)
+                                .width(150.dp)
+                                .clip(RoundedCornerShape(15.dp)),
+                            painter = painterResource(id = R.drawable.def),
+                            contentDescription = "Contact Image",
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
+                    FloatingActionButton(
+                        onClick = { pickImageLauncher.launch("image/*") },
+                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp).size(45.dp)
+                            .align(Alignment.BottomCenter)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add Image"
+                        )
+                    }
                 }
 
-                FloatingActionButton(
-                    onClick = { pickImageLauncher.launch("image/*")  },
-                    modifier = Modifier.padding(top= 10.dp, bottom = 10.dp).size(45.dp).align(Alignment.BottomCenter)
-                ){
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add Image"
-                    )
-                }
-            }
-
-            OutlinedTextField(
-                modifier = Modifier
-                    .sharedElement(
+                OutlinedTextField(
+                    modifier = Modifier
+                        .sharedElement(
 //                        state = rememberSharedContentState(key = "text/${firstNameState}"),
-                        state = rememberSharedContentState(key = "text/${viewModel.currentContactId}/${firstNameState}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 1000)
-                        }
-                    )
-                    .fillMaxWidth(0.8f),
-                value = firstNameState,
-                onValueChange = { firstName ->
-                    viewModel.onEvent(AddEditContactEvent.FirstNameChanged(firstName = firstName))
-                },
-                label = { Text(text = "First Name") },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                shape = RoundedCornerShape(15.dp),
-                maxLines = 1,
-                singleLine = true
-            )
+                            state = rememberSharedContentState(key = "text/${viewModel.currentContactId}/${firstNameState}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                tween(durationMillis = 1000)
+                            }
+                        )
+                        .fillMaxWidth(0.8f),
+                    value = firstNameState,
+                    onValueChange = { firstName ->
+                        viewModel.onEvent(AddEditContactEvent.FirstNameChanged(firstName = firstName))
+                    },
+                    label = { Text(text = "First Name") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    maxLines = 1,
+                    singleLine = true
+                )
 
-            OutlinedTextField(
-                modifier = Modifier
-                    .sharedElement(
+                OutlinedTextField(
+                    modifier = Modifier
+                        .sharedElement(
 //                        state = rememberSharedContentState(key = "text/${lastNameState}"),
-                        state = rememberSharedContentState(key = "text/${viewModel.currentContactId}/${lastNameState}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 1000)
-                        }
-                    )
-                    .fillMaxWidth(0.8f),
-                value = lastNameState,
-                onValueChange = { lastName ->
-                    viewModel.onEvent(AddEditContactEvent.LastNameChanged(lastName))
-                },
-                label = { Text(text = "Last Name") },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                shape = RoundedCornerShape(15.dp),
-                maxLines = 1,
-                singleLine = true
+                            state = rememberSharedContentState(key = "text/${viewModel.currentContactId}/${lastNameState}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                tween(durationMillis = 1000)
+                            }
+                        )
+                        .fillMaxWidth(0.8f),
+                    value = lastNameState,
+                    onValueChange = { lastName ->
+                        viewModel.onEvent(AddEditContactEvent.LastNameChanged(lastName))
+                    },
+                    label = { Text(text = "Last Name") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    maxLines = 1,
+                    singleLine = true
 
-            )
-            OutlinedTextField(
+                )
+                OutlinedTextField(
+                    modifier = Modifier
+                        .sharedElement(
+                            state = rememberSharedContentState(key = "text/${emailState}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                tween(durationMillis = 1000)
+                            }
+                        )
+                        .fillMaxWidth(0.8f),
+                    value = emailState,
+                    onValueChange = { email ->
+                        viewModel.onEvent(AddEditContactEvent.EmailChanged(email))
+                    },
+                    label = { Text(text = "Email") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    maxLines = 1,
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    modifier = Modifier
+                        .sharedElement(
+                            state = rememberSharedContentState(key = "text/${phoneNumberState}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                tween(durationMillis = 1000)
+                            }
+                        )
+                        .fillMaxWidth(0.8f),
+                    value = phoneNumberState,
+                    onValueChange = { phone ->
+                        viewModel.onEvent(AddEditContactEvent.PhoneNumberChanged(phone))
+                    },
+                    label = { Text(text = "Phone") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    maxLines = 1,
+                    singleLine = true
+                )
+            }
+        } else {
+            Column(
                 modifier = Modifier
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "text/${emailState}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 1000)
-                        }
-                    )
-                    .fillMaxWidth(0.8f),
-                value = emailState,
-                onValueChange = { email ->
-                    viewModel.onEvent(AddEditContactEvent.EmailChanged(email))
-                },
-                label = { Text(text = "Email") },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
-                shape = RoundedCornerShape(15.dp),
-                maxLines = 1,
-                singleLine = true
-            )
-            OutlinedTextField(
-                modifier = Modifier
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "text/${phoneNumberState}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 1000)
-                        }
-                    )
-                    .fillMaxWidth(0.8f),
-                value = phoneNumberState,
-                onValueChange = { phone ->
-                    viewModel.onEvent(AddEditContactEvent.PhoneNumberChanged(phone))
-                },
-                label = { Text(text = "Phone") },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                shape = RoundedCornerShape(15.dp),
-                maxLines = 1,
-                singleLine = true
-            )
+                    .padding(it)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Box(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .height(180.dp)
+                        .width(150.dp)
+                        .clip(RoundedCornerShape(15.dp)),
+                    contentAlignment = Alignment.TopCenter
+                ){
+                    if (imageState?.isNotEmpty() == true){
+                        Image(
+                            painter = rememberAsyncImagePainter(imageState), // Replace with your image resource
+                            contentDescription = "Default Image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(150.dp)
+                                .clip(RoundedCornerShape(15.dp))
+                                .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(15.dp))
+                                .shadow(elevation = 8.dp, shape = RoundedCornerShape(15.dp))
+                        )
+                    }else{
+
+                        Image(
+                            modifier = Modifier
+                                .height(150.dp)
+                                .width(150.dp)
+                                .clip(RoundedCornerShape(15.dp))
+                            ,
+                            painter = painterResource(id = R.drawable.def),
+                            contentDescription = "Contact Image",
+                            contentScale = ContentScale.Crop)
+                    }
+
+                    FloatingActionButton(
+                        onClick = { pickImageLauncher.launch("image/*")  },
+                        modifier = Modifier.padding(top= 10.dp, bottom = 10.dp).size(45.dp).align(Alignment.BottomCenter)
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add Image"
+                        )
+                    }
+                }
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f),
+                    value = firstNameState,
+                    onValueChange = { firstName ->
+                        viewModel.onEvent(AddEditContactEvent.FirstNameChanged(firstName = firstName))
+                    },
+                    label = { Text(text = "First Name") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    maxLines = 1,
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f),
+                    value = lastNameState,
+                    onValueChange = { lastName ->
+                        viewModel.onEvent(AddEditContactEvent.LastNameChanged(lastName))
+                    },
+                    label = { Text(text = "Last Name") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    maxLines = 1,
+                    singleLine = true
+
+                )
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f),
+                    value = emailState,
+                    onValueChange = { email ->
+                        viewModel.onEvent(AddEditContactEvent.EmailChanged(email))
+                    },
+                    label = { Text(text = "Email") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    maxLines = 1,
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    modifier = Modifier
+                        .sharedElement(
+                            state = rememberSharedContentState(key = "text/${phoneNumberState}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                tween(durationMillis = 1000)
+                            }
+                        )
+                        .fillMaxWidth(0.8f),
+                    value = phoneNumberState,
+                    onValueChange = { phone ->
+                        viewModel.onEvent(AddEditContactEvent.PhoneNumberChanged(phone))
+                    },
+                    label = { Text(text = "Phone") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    maxLines = 1,
+                    singleLine = true
+                )
+            }
         }
     }
 }
