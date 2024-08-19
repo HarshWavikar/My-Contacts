@@ -12,3 +12,4 @@ abstract class ContactDatabase: RoomDatabase() {
         const val DATABASE_NAME = "contact_db"
     }
 }
+

@@ -23,3 +23,4 @@ interface ContactDao {
     @Delete
     suspend fun deleteContact(contact: Contact)
 }
+

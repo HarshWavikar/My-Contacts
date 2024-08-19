@@ -5,5 +5,7 @@ sealed class AddEditContactEvent {
     data class LastNameChanged(val lastName: String) : AddEditContactEvent()
     data class EmailChanged(val email: String) : AddEditContactEvent()
     data class PhoneNumberChanged(val phoneNumber: String) : AddEditContactEvent()
+    data class ImageChanged(val image: ByteArray?) : AddEditContactEvent()
     object SaveContactClicked : AddEditContactEvent()
 }
+

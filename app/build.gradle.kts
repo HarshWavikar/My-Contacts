@@ -87,4 +87,10 @@ dependencies {
 
     // Coil
     implementation(libs.coil.compose)
-}
+
+    // Orbital
+    implementation(libs.orbital)
+
+    // Compose animation
+    implementation(libs.androidx.compose.animation)
+    implementation(libs.androidx.navigation.compose)}

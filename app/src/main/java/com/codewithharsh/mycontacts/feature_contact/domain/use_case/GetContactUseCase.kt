@@ -10,3 +10,4 @@ class GetContactUseCase(
         return contactRepository.getContactById(id)
     }
 }
+

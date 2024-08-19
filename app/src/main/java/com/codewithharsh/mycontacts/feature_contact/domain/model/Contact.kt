@@ -11,7 +11,10 @@ data class Contact(
     val lastName: String,
     val email: String,
     val phone: String,
+    val image: ByteArray? = null
 )
 
 
 class InvalidContactException(message: String) : Exception(message)
+
+

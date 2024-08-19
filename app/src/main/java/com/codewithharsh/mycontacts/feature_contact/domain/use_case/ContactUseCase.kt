@@ -6,3 +6,5 @@ data class ContactUseCase(
     val insertContactUseCase: InsertContactUseCase,
     val deleteContactUseCase: DeleteContactUseCase
 )
+
+

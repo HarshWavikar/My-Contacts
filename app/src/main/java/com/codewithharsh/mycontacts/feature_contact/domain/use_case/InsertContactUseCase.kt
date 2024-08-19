@@ -22,7 +22,8 @@ class InsertContactUseCase(
         if (contact.phone.isBlank()) {
             throw InvalidContactException("The phone number field can't be empty.")
         }
-
         contactRepository.insertContact(contact)
     }
 }
+
+

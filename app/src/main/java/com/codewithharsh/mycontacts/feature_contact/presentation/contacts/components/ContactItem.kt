@@ -3,11 +3,13 @@ package com.codewithharsh.mycontacts.feature_contact.presentation.contacts.compo
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,11 +41,9 @@ import com.codewithharsh.mycontacts.feature_contact.presentation.contacts.Contac
 @Composable
 fun ContactItem(
     contact: Contact,
-//    onDeleteItemClick: (Contact) -> Unit,
     onCallClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     ElevatedCard(
         modifier = modifier
             .padding(5.dp)
@@ -62,6 +62,17 @@ fun ContactItem(
                     .background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
+                contact.image?.let {
+                    Image(
+                        bitmap = BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap(),
+                        contentDescription = "Contact Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(RoundedCornerShape(25.dp))
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                } ?:
                 Text(
                     text = "${contact.firstName.first()}${contact.lastName.first()}",
                     color = MaterialTheme.colorScheme.primary,
@@ -74,7 +85,8 @@ fun ContactItem(
 
             Column(
                 modifier = Modifier.fillMaxWidth(0.8f),
-                horizontalAlignment = Alignment.Start
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = contact.firstName + " " + contact.lastName,
@@ -82,6 +94,14 @@ fun ContactItem(
                     style = MaterialTheme.typography.titleLarge
                 )
                 Text(
+                    modifier = Modifier.offset (y = (-8).dp),
+                    text = "(${contact.email})",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 10.sp
+                )
+                Text(
+                    modifier = Modifier.offset (y = (-5).dp),
                     text = contact.phone,
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = 18.sp,
@@ -100,6 +120,7 @@ fun ContactItem(
                 )
             }
         }
-
     }
 }
+
+

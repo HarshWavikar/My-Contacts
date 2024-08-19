@@ -24,3 +24,4 @@ class ContactRepositoryImpl(
         contactDao.deleteContact(contact)
     }
 }
+

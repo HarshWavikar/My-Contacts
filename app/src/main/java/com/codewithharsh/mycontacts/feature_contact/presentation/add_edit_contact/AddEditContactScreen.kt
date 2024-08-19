@@ -1,14 +1,15 @@
 package com.codewithharsh.mycontacts.feature_contact.presentation.add_edit_contact
 
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,7 +27,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.codewithharsh.mycontacts.R
 import kotlinx.coroutines.flow.collectLatest
 
@@ -54,6 +56,7 @@ fun AddEditContactScreen(
     val lastNameState = viewModel.textState.value.lastName
     val emailState = viewModel.textState.value.email
     val phoneNumberState = viewModel.textState.value.phone
+    val imageState = viewModel.imageState.value
 
     val snackBarHost = remember { SnackbarHostState() }
 
@@ -70,6 +73,16 @@ fun AddEditContactScreen(
                     )
                 }
             }
+        }
+    }
+    val context = LocalContext.current
+    val pickImageLauncher = rememberLauncherForActivityResult(
+    contract = ActivityResultContracts.GetContent()
+    ){uri: Uri? ->
+        uri?.let {
+            val inputStream = context.contentResolver.openInputStream(it)
+            val byteArray = inputStream?.readBytes()
+            viewModel.onEvent(AddEditContactEvent.ImageChanged(byteArray))
         }
     }
 
@@ -96,9 +109,53 @@ fun AddEditContactScreen(
                 .padding(it)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
+
             Spacer(modifier = Modifier.height(10.dp))
+
+            Box(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .height(180.dp)
+                    .width(150.dp)
+                    .clip(RoundedCornerShape(15.dp)),
+                contentAlignment = Alignment.TopCenter
+            ){
+                if (imageState?.isNotEmpty() == true){
+                    Image(
+                        painter = rememberAsyncImagePainter(imageState), // Replace with your image resource
+                        contentDescription = "Default Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(150.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                            .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(15.dp))
+                            .shadow(elevation = 8.dp, shape = RoundedCornerShape(15.dp))
+                    )
+                }else{
+
+                    Image(
+                        modifier = Modifier
+                            .height(150.dp)
+                            .width(150.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                        ,
+                        painter = painterResource(id = R.drawable.def),
+                        contentDescription = "Contact Image",
+                        contentScale = ContentScale.Crop)
+                }
+
+                FloatingActionButton(
+                    onClick = { pickImageLauncher.launch("image/*")  },
+                    modifier = Modifier.padding(top= 10.dp, bottom = 10.dp).size(45.dp).align(Alignment.BottomCenter)
+                ){
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Image"
+                    )
+                }
+            }
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.8f),

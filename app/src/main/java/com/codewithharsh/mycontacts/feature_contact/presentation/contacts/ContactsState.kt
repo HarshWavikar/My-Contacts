@@ -9,3 +9,5 @@ data class ContactsState(
     val contactOrder: ContactOrder = ContactOrder.OrderByFirstName(OrderType.Ascending),
     val isOrderSectionVisible: Boolean = false
 )
+
+

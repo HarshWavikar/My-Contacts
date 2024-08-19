@@ -6,3 +6,4 @@ data class ContactTextFieldState (
     val email: String = "",
     val phone: String = ""
 )
+

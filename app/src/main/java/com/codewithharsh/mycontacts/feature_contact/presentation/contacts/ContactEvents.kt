@@ -9,3 +9,5 @@ sealed class ContactEvents {
     data object RestoreContact : ContactEvents()
     data object ToggleOrderSection : ContactEvents()
 }
+
+

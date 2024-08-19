@@ -23,6 +23,9 @@ class AddEditContactViewModel @Inject constructor(
     private val _textState = mutableStateOf(ContactTextFieldState())
     val textState: State<ContactTextFieldState> = _textState
 
+    private val _imageState = mutableStateOf<ByteArray?>(null) // Add image state
+    val imageState: State<ByteArray?> = _imageState
+
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
@@ -40,6 +43,7 @@ class AddEditContactViewModel @Inject constructor(
                             email = contact.email,
                             phone = contact.phone
                         )
+                        _imageState.value = contact.image
                     }
                 }
             }
@@ -81,6 +85,7 @@ class AddEditContactViewModel @Inject constructor(
                                 lastName = textState.value.lastName,
                                 email = textState.value.email,
                                 phone = textState.value.phone,
+                                image = imageState.value,
                                 id = currentContactId
                             )
                         )
@@ -95,6 +100,10 @@ class AddEditContactViewModel @Inject constructor(
                     }
                 }
             }
+
+            is AddEditContactEvent.ImageChanged -> {
+                _imageState.value = event.image
+            }
         }
     }
 
@@ -103,3 +112,5 @@ class AddEditContactViewModel @Inject constructor(
         object SaveContact : UiEvent()
     }
 }
+
+

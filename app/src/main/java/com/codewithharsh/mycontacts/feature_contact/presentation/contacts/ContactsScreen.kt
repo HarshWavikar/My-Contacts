@@ -29,8 +29,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.SortByAlpha
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -41,9 +39,10 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -151,9 +150,9 @@ fun ContactsScreen(
                     items = state.contacts,
                     key = { contact -> contact.id!! }
                 ) { contact ->
-                    val dismissState = rememberDismissState(
+                    val dismissState = rememberSwipeToDismissBoxState (
                         confirmValueChange = {
-                            if (it == DismissValue.DismissedToStart) {
+//                            if (it == DismissValue.DismissedToStart) {
                                 viewModel.onEvent(ContactEvents.DeleteContact(contact))
                                 scope.launch {
                                     val result = snackBarHost.showSnackbar(
@@ -165,16 +164,17 @@ fun ContactsScreen(
                                         viewModel.onEvent(ContactEvents.RestoreContact)
                                     }
                                 }
-                            }
+//                            }
                             true
                         }
                     )
-                    SwipeToDismiss(
+                    SwipeToDismissBox(
                         state = dismissState,
-                        directions = setOf(DismissDirection.EndToStart),
-                        background = {
+                        enableDismissFromEndToStart = true,
+//                        directions = setOf(DismissDirection.EndToStart),
+                        backgroundContent = {
                             val color = when (dismissState.dismissDirection) {
-                                DismissDirection.EndToStart -> MaterialTheme.colorScheme.error
+                                SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
                                 else -> Color.Transparent
                             }
                             Box(
@@ -193,7 +193,7 @@ fun ContactsScreen(
                                 )
                             }
                         },
-                        dismissContent = {
+                        content = {
                             ContactItem(
                                 contact = contact,
                                 modifier = Modifier

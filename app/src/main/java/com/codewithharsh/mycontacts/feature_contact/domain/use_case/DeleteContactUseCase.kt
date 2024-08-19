@@ -10,3 +10,4 @@ class DeleteContactUseCase(
         contactRepository.deleteContact(contact)
     }
 }
+
