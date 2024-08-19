@@ -4,6 +4,10 @@ package com.codewithharsh.mycontacts.feature_contact.presentation.add_edit_conta
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -47,8 +51,10 @@ import coil.compose.rememberAsyncImagePainter
 import com.codewithharsh.mycontacts.R
 import kotlinx.coroutines.flow.collectLatest
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun AddEditContactScreen(
+fun SharedTransitionScope.AddEditContactScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     navController: NavController,
     viewModel: AddEditContactViewModel = hiltViewModel()
 ) {
@@ -116,6 +122,13 @@ fun AddEditContactScreen(
 
             Box(
                 modifier = Modifier
+                    .sharedElement(
+                        state = rememberSharedContentState(key = "image/${viewModel.currentContactId}"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = {_,_ ->
+                            tween(durationMillis = 1000)
+                        }
+                    )
                     .padding(10.dp)
                     .height(180.dp)
                     .width(150.dp)
@@ -158,7 +171,16 @@ fun AddEditContactScreen(
             }
 
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(0.8f),
+                modifier = Modifier
+                    .sharedElement(
+//                        state = rememberSharedContentState(key = "text/${firstNameState}"),
+                        state = rememberSharedContentState(key = "text/${viewModel.currentContactId}/${firstNameState}"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = { _, _ ->
+                            tween(durationMillis = 1000)
+                        }
+                    )
+                    .fillMaxWidth(0.8f),
                 value = firstNameState,
                 onValueChange = { firstName ->
                     viewModel.onEvent(AddEditContactEvent.FirstNameChanged(firstName = firstName))
@@ -174,7 +196,16 @@ fun AddEditContactScreen(
             )
 
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(0.8f),
+                modifier = Modifier
+                    .sharedElement(
+//                        state = rememberSharedContentState(key = "text/${lastNameState}"),
+                        state = rememberSharedContentState(key = "text/${viewModel.currentContactId}/${lastNameState}"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = { _, _ ->
+                            tween(durationMillis = 1000)
+                        }
+                    )
+                    .fillMaxWidth(0.8f),
                 value = lastNameState,
                 onValueChange = { lastName ->
                     viewModel.onEvent(AddEditContactEvent.LastNameChanged(lastName))
@@ -190,7 +221,15 @@ fun AddEditContactScreen(
 
             )
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(0.8f),
+                modifier = Modifier
+                    .sharedElement(
+                        state = rememberSharedContentState(key = "text/${emailState}"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = { _, _ ->
+                            tween(durationMillis = 1000)
+                        }
+                    )
+                    .fillMaxWidth(0.8f),
                 value = emailState,
                 onValueChange = { email ->
                     viewModel.onEvent(AddEditContactEvent.EmailChanged(email))
@@ -205,7 +244,15 @@ fun AddEditContactScreen(
                 singleLine = true
             )
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(0.8f),
+                modifier = Modifier
+                    .sharedElement(
+                        state = rememberSharedContentState(key = "text/${phoneNumberState}"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = { _, _ ->
+                            tween(durationMillis = 1000)
+                        }
+                    )
+                    .fillMaxWidth(0.8f),
                 value = phoneNumberState,
                 onValueChange = { phone ->
                     viewModel.onEvent(AddEditContactEvent.PhoneNumberChanged(phone))

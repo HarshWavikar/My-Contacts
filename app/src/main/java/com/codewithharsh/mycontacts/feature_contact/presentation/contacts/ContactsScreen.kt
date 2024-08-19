@@ -7,6 +7,9 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -60,9 +63,10 @@ import com.codewithharsh.mycontacts.feature_contact.presentation.contacts.compon
 import com.codewithharsh.mycontacts.feature_contact.presentation.util.Screens
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun ContactsScreen(
+fun SharedTransitionScope.ContactsScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     navController: NavController,
     viewModel: ContactsViewModel = hiltViewModel()
 ) {
@@ -171,7 +175,6 @@ fun ContactsScreen(
                     SwipeToDismissBox(
                         state = dismissState,
                         enableDismissFromEndToStart = true,
-//                        directions = setOf(DismissDirection.EndToStart),
                         backgroundContent = {
                             val color = when (dismissState.dismissDirection) {
                                 SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
@@ -195,6 +198,7 @@ fun ContactsScreen(
                         },
                         content = {
                             ContactItem(
+                                animatedVisibilityScope = animatedVisibilityScope,
                                 contact = contact,
                                 modifier = Modifier
                                     .fillMaxWidth()

@@ -1,6 +1,11 @@
 package com.codewithharsh.mycontacts.feature_contact.presentation.contacts.components
 
 import android.graphics.BitmapFactory
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,8 +43,10 @@ import androidx.navigation.compose.rememberNavController
 import com.codewithharsh.mycontacts.feature_contact.domain.model.Contact
 import com.codewithharsh.mycontacts.feature_contact.presentation.contacts.ContactsScreen
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ContactItem(
+fun SharedTransitionScope.ContactItem(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     contact: Contact,
     onCallClick: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -56,6 +63,13 @@ fun ContactItem(
         ) {
             Box(
                 modifier = Modifier
+                    .sharedElement(
+                        state = rememberSharedContentState(key = "image/${contact.id}"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = { _, _ ->
+                            tween(durationMillis = 1000)
+                        }
+                    )
                     .size(70.dp)
                     .padding(8.dp)
                     .clip(RoundedCornerShape(50.dp))
@@ -89,19 +103,50 @@ fun ContactItem(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
+                    modifier = Modifier
+                        .sharedElement(
+                            state = rememberSharedContentState(key = "text/${contact.id}/${contact.firstName}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = {_,_ ->
+                                tween(durationMillis = 300)
+                            }
+                        )
+                        .sharedElement(
+                            state = rememberSharedContentState(key = "text/${contact.id}/${contact.lastName}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = {_,_ ->
+                                tween(durationMillis = 300)
+                            }
+                        )
+                    ,
                     text = contact.firstName + " " + contact.lastName,
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.titleLarge
                 )
                 Text(
-                    modifier = Modifier.offset (y = (-8).dp),
+                    modifier = Modifier
+                        .sharedElement(
+                            state = rememberSharedContentState(key = "text/${contact.email}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = {_,_ ->
+                                tween(durationMillis = 500)
+                            }
+                        )
+                        .offset (y = (-8).dp),
                     text = "(${contact.email})",
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 10.sp
                 )
                 Text(
-                    modifier = Modifier.offset (y = (-5).dp),
+                    modifier = Modifier
+                        .sharedElement(
+                            state = rememberSharedContentState(key = "text/${contact.phone}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = {_,_ ->
+                                tween(durationMillis = 700)
+                            }
+                        ).offset (y = (-5).dp),
                     text = contact.phone,
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = 18.sp,

@@ -29,7 +29,7 @@ class AddEditContactViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
-    private var currentContactId: Int? = null
+    var currentContactId: Int? = null
 
     init {
         savedStateHandle.get<Int>("contactId")?.let { contactId ->
